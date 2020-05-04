@@ -1,0 +1,80 @@
+.add_form{
+  width:960px;
+  margin : 100px auto 0px;
+  padding: 10px;
+  font-size: 17px;
+  background-color: #eee;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px 3px #5195FF;
+}
+.add_inputs label{
+  display: inline-block;
+  margin: 20px 50px 20px 20px;;
+  width:140px;
+}
+.add_inputs input{
+  height: 40px;
+  border: 1px solid #6351FF;
+  border-radius: 10px;
+}
+.add_inputs select{
+  height: 40px;
+  width:200px;
+}
+.add_inputs span {
+  color:red;
+}
+.add_inputs input[type=checkbox]{
+  height:0px;
+}
+.add_inputs input[name=new_group]{
+  width:230px;
+
+}
+.new_group_label{
+  margin-left:0px !important;
+  width:130px !important;
+}
+.add_controller{
+  margin :30px auto;
+  width:500px;
+  height:70px;
+}
+.add_controller button , .add_controller input{
+  width:150px;
+  height:50px;
+  border-color: #51ECFF;
+  border-radius: 20px;
+  background-color: #5195FF;
+  color:white;
+  font-weight: bold;
+  font-size: 18px;
+}
+.add_controller button {
+float: right;
+
+}
+.add_controller input{
+float: left;
+}
+
+[title="Add New Contact"]{
+    background-color: #5195FF !important;
+}
+.required{
+    color:red;
+}
+
+.error , .saved {
+  font-size: 22px;
+  margin: 25px auto;
+  width:80%;
+  text-align: center;
+}
+.error
+{
+  color:red;
+}
+.saved{
+  color:Green;
+}

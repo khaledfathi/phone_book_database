@@ -1,0 +1,116 @@
+/*Filter Section*/
+.{
+  border:1px solid black;
+  margin:50px auto;
+  height:850px;
+}
+.filter_div{
+  background-color:#5195FF;
+  box-shadow: 0px 0px 15px #51ECFF;
+  font-size: 18px;
+  width:800px;
+  min-width: 800px;
+  margin:40px auto;
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.filter_div [type=text]{
+  width:300px;
+  margin :0px 50px 0px 15px;
+}
+.table_div{
+  border-top: 1px solid #5195FF;
+  border-top-width: 3px;
+  padding-top: 10px;
+  overflow: scroll;
+  height:750px;
+}
+#res_table thead tr{
+  background:#6351FF;
+  color:white;
+}
+#res_table thead tr:hover{
+  background:#6351FF;
+  color:white;
+  cursor: auto;
+}
+#res_table tr:hover{
+  background:#51ECFF;
+  cursor: pointer;
+}
+/*END -- Filter Section*/
+
+/*Edit Section*/
+.edit_form{
+  width:960px;
+  margin : 100px auto 0px;
+  padding: 10px;
+  font-size: 17px;
+  background-color: #eee;
+  border-radius: 20px;
+  box-shadow: 0px 0px 10px 3px #5195FF;
+}
+.edit_inputs label{
+  display: inline-block;
+  margin: 20px 50px 20px 20px;;
+  width:140px;
+}
+.edit_inputs input{
+  height: 40px;
+  border: 1px solid #6351FF;
+  border-radius: 10px;
+}
+.edit_inputs select{
+  height: 40px;
+  width:200px;
+}
+.edit_inputs span {
+  color:red;
+}
+.edit_inputs input[type=checkbox]{
+  height:0px;
+}
+.edit_inputs input[name=new_group]{
+  width:230px;
+
+}
+.new_group_label{
+  margin-left:0px !important;
+  width:130px !important;
+}
+.edit_controller{
+  margin :30px auto;
+  width:500px;
+  height:70px;
+}
+.edit_controller button , .edit_controller input{
+  width:150px;
+  height:50px;
+  border-color: #51ECFF;
+  border-radius: 20px;
+  background-color: #5195FF;
+  color:white;
+  font-weight: bold;
+  font-size: 18px;
+}
+.edit_controller button {
+float: right;
+  
+}
+.edit_controller input{
+float: left;
+}
+[title="Edit Contact"]{
+    background-color: #5195FF !important;
+}
+.required{
+    color:red;
+}
+.flash_message_div{
+  text-align: center;
+  width:700px;
+  margin: 0px auto;
+}
+
+/*END -- Edit Section*/

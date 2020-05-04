@@ -1,0 +1,31 @@
+.advanced_search{
+  width: 810px;
+  margin: 0px auto;
+}
+.search_by , .pattern ,  .order , .group{
+  display: inline-block;
+  width:400px;
+  padding: 15px 0px;
+}
+.search_by select, .pattern select,  .order select , .group select{
+    width:200px;
+}
+.search_by label, .pattern label,  .order label , .group label{
+  display: inline-block;
+  width:100px;
+}
+[title="Search"]{
+    background-color: #5195FF !important;
+}
+.error
+{
+  color:red;
+  font-size: 22px;
+  margin: 25px auto;
+  width:80%;
+  text-align: center;
+}
+thead{
+  background-color:#6351FF;
+  color:white;
+}

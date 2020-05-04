@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="Phone book APP using Web Tech + Python/flask + standalone Database SQLite3">
+    <meta name="author" content="Khaled Fathi [ khaledfathi@protonmail.com ]">
+    <meta name="viewport" content="width=device-width, initial-scale=0.4">
+    <title>{%block title%}Phonebook-Search{%endblock%}</title>
+    <link rel="stylesheet" href="static/css/style.css" type="text/css">
+    {%block css%}{%endblock%}
+    <link rel="icon" href="static/images/page_icon.png" type="icon">
+  </head>
+
+  <body>
+    <!--HEADER SECTION-->
+    <a class="header_link" href="/">
+      <header>
+        <div class="banner_data">
+          <h1><img src="static/images/base_page_pic.png" alt="Page Logo">Phone Book DataBase<img src="static/images/base_page_pic.png" alt="Page Logo"></h1>
+          <span>Ver 0.1 Beta</span>
+        </div>
+      </header>
+    </a>
+    <!--END OF HEADER SECTION-->
+
+    <!--WHOLE APP CONTAINER-->
+    <article >
+      <!--APP BUTTONS/OPTIONS-->
+      <aside class="option_aside">
+        <div class="option_list">
+          <a href="/search"> <button id="search_option" type="button" name="button" title="Search"><img src="static/images/search_icon.png" alt=""></button><br></a>
+          <a href="/add"><button id="add_option" type="button" name="button"  title="Add New Contact"><img src="static/images/add.png" alt=""></button></a><br>
+          <a href="/edit"> <button type="button" name="button" title="Edit Contact"><img src="static/images/edit.png" alt=""></button></a><br>
+          <a href="/delete"> <button type="button" name="button" title="Delete Contact"><img src="static/images/delete.png" alt=""></button></a><br>
+          <a href="/groups"> <button type="button" name="button" title="Mange Groups"><img src="static/images/group.png" alt=""></button></a><br>
+          <a href="/backup_and_restore"> <button type="button" name="button" title="BackUp / Restore"><img src="static/images/backup_restore.png" alt=""></button></a><br>
+          <a href="/about"> <button type="button" name="button" title="About APP"><img src="static/images/about.png" alt=""></button></a><br>
+        </div>
+      </aside>
+      <!--END OF APP BUTTONS/OPTIONS-->
+      <div class="result_area">
+        {%block result_area%}{%endblock%}
+      </div>
+    </article>
+    <!--WHOLE APP CONTAINER-->
+  </body>
+  <script type="text/javascript" src="static/js/js.js"></script>
+  {%block javascript%}{%endblock%}
+</html>

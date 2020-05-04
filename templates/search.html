@@ -1,0 +1,99 @@
+{%extends "base.html"%}
+{%block title%}Phonebook-Search{%endblock%}
+{%block css%}
+  <link rel="stylesheet" href="static/css/advanced_search.css" type="text/css">
+{%endblock%}
+
+{%block result_area%}
+<!--NORMAL SEARCH-->
+<form id="normal_search_block" class="" method="post">
+  <div class="search_form">
+    <div class="search_bar">
+      <input id="search_input" type="text" name="query" value="" placeholder="Name ">
+      <button id="submit" class="submit" type="submit" name="button"><img src="static/images/search_icon.png" alt=""></button>
+    </div>
+    <button id="advanced_search_button" type="button"class="advanced_button" name="button">Advanced Search</button>
+  </div>
+  <!--END OF NORMAL SEARCH-->
+
+  <!--Advanced search [Hidden by default]-->
+  <div id="advanced_search_block" class="advanced_search" hidden>
+    <div class="search_by">
+      <label  for="">Search By</label>
+      <select id="search_by" class="" name="search_by" value="">
+        <option value="" selected>Name</option>
+        <option value="">Nickname</option>
+        <option value="">Phone_Number</option>
+        <option value="">Address</option>
+        <option value="">Work</option>
+        <option value="">Email</option>
+        <option value="">Note</option>
+      </select>
+    </div>
+
+    <div  class="pattern">
+      <label for="">Pattern</label>
+      <select id= "pattern" class="" name="pattern">
+        <option value="" selected>Contains</option>
+        <option value="">Start With</option>
+        <option value="">End With</option>
+        <option value="">Equal</option>
+      </select>
+    </div>
+
+      <div class="order">
+        <label for="">Order</label>
+        <select id="order"  class="" name="order">
+          <option value="">Ascending</option>
+          <option value="">Descending</option>
+        </select>
+      </div>
+      <div  class="group">
+        <label for="">Group</label>
+        <select id="groups"class="" name="groups">
+          {%if groups%}
+            {%for i in groups%}
+                <option value="">{{i[0]}}</option>
+            {%endfor%}
+          {%endif%}
+        </select>
+      </div>
+  </div>
+  <input id = "query_rules" type="hidden" name="query_rules" value="">
+  <input id = "general_search_flag" type="hidden" name="general_search_flag" value="0">
+</form>
+<!--END OF Advanced search -->
+
+<!--Result DATA-->
+<div id= "result_data" class="result_data">
+  <table>
+    {%if no_results%}
+    <h1 class="error">{{no_results}}</h1>
+    {%endif%}
+    {%if result%}
+      <thead>
+        <td>Name</td>
+        <td>Nickname</td>
+        <td>Phone</td>
+        <td>Address</td>
+        <td>work</td>
+        <td>Email</td>
+        <td>Notes</td>
+        <td>Group</td>
+      </thead>
+      {%for i in result%}
+        <tr>
+          {%for x in i %}
+          <td>{{x}}</td>
+          {%endfor%}
+        </tr>
+      {%endfor%}
+    {%endif%}
+  </table>
+</div>
+<!--END OF Result DATA-->
+{%endblock%}
+
+{%block javascript%}
+<script type="text/javascript" src="static/js/search.js"></script>
+{%endblock%}

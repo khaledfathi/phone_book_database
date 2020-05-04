@@ -1,0 +1,66 @@
+{%extends "base.html"%}
+{%block title%}Phonebook-Add{%endblock%}
+
+{%block css%}
+  <link rel="stylesheet" href="static/css/add_page.css" type="text/css">
+{%endblock%}
+
+{%block result_area%}
+<!--OPTION [ADD]-->
+<div id ="add_block" class="option_add" >
+  <form class="add_form"  method="POST">
+    <div class="add_inputs">
+      <label for="">Name<span>*</span></label>
+      <input id="name_" type="text" name="name" value="" required placeholder="Name">
+      <label for="">Nickname</label>
+      <input id="nickname" type="text" name="nickname" value="" placeholder="Nickname"><br>
+      <label for="">Phone Number<span>*</span></label>
+      <input id="phone_number" type="text" name="phone_number" value="" required placeholder="01234567891">
+      <label for="">Address</label>
+      <input id="address" type="text" name="address" value="" placeholder="street , city , country .."><br>
+      <label for="">Work</label>
+      <input id="work" type="text" name="work" value="" placeholder="work place">
+      <label for="">E-Mail</label>
+      <input id="email" type="text" name="email" value="" placeholder="name@domain.com"><br>
+      <label for="">Notes</label>
+      <input id="notes" type="text" name="notes" value="" placeholder="notes about him">
+
+      <label for="">Groups</label>
+      <select id="group_list" class="" name="">
+        {%if groups%}
+          {%for i in groups%}
+              <option value="">{{i[0]}}</option>
+          {%endfor%}
+        {%endif%}
+      </select><br>
+
+      <input id="group_checkbox" type="checkbox" name="" value="">
+      <label class="new_group_label" for="">New Group</label>
+      <input id="group_text" type="text" name="new_group" value="" disabled placeholder="add new group">
+    </div>
+
+    <div class="add_controller">
+      <input id="save_button" type="submit" name="" value="Save">
+      <button id="clear_button" type="button" name="button">Clear Fields</button>
+    </div>
+    <input id="groups_rules" type="hidden" name="group" value="default">
+    <input id="new_group_flag" type="hidden" name="new_group_flag" value="">
+  </form>
+  {%with messages = get_flashed_messages()%}
+    {%if messages%}
+      {%for msg in messages%}
+          <p class="saved"> {{msg}}</p>
+      {%endfor%}
+    {%endif%}
+  {%endwith%}
+
+  {%if group_error%}
+    <p class="error">{{group_error}}</p>
+  {%endif%}
+</div>
+<!--END OF OPTION [ADD]-->
+{%endblock%}
+
+{%block javascript%}
+  <script type="text/javascript" src="static/js/add.js"></script>
+{%endblock%}

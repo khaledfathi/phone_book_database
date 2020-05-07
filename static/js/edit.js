@@ -178,7 +178,7 @@ update_button.onmouseover  = function (){
   if (new_group_flag.value == "1"){
     groups_rules.value = group_text.value
   }else{
-    group_list.options[group_list.selectedIndex].value
+    groups_rules.value = group_list.options[group_list.selectedIndex].value
   }
 }
 /*##END -- When click on update button will determine group value taken from group_text or group_list##*/
@@ -194,6 +194,5 @@ window.onload = function () {
         flash_message.setAttribute("style","color:red")
       }
   }catch{}
-
 }
 /*##END -- Change Flash Massege Color Depend on it case##*/

@@ -5,9 +5,118 @@
 {%endblock%}
 
 {%block result_area%}
-<div class="under_const">
-  <h1>GROUPS PAGE</h1>
-  <h3>UNDER CONSTRUCTION</h3>
+<div class="group_box">
+  <form class="" method="post">
+    <!--Main Fieldset-->
+    <fieldset class="mange_group">
+      <div class="flash_div">
+        {%with messages = get_flashed_messages()%}
+          {%if messages%}
+            {%for msg in messages%}
+              <h3>{{msg}}</h3>
+            {%endfor%}
+          {%endif%}
+        {%endwith%}
+      </div>
+      <legend>Mange Groups</legend>
+      <!--Nested Fieldset for Rename-->
+      <fieldset class="edit_group">
+        <legend>Edit Group</legend><br>
+
+        <label  for="">Select Group</label>
+        <select id="edit_group_select" class="group_select" name="">
+          {%if groups%}
+            {%for i in groups%}
+              <option value="">{{i[0]}}</option>
+            {%endfor%}
+          {%endif%}
+        </select><br>
+        <label for="">Rename Group to </label>
+        <input id="rename_field" type="text" name="rename_field" value=""><br><hr>
+
+        <input id="new_group_checkbox" type="checkbox" name="" value="">
+        <label class="new_group_lable" for="new_group_checkbox">Create New Group</label>
+        <input id= "new_group_text"type="text" name="new_group_text" value="" disabled><br>
+
+        <button id="edit_save_button" type="submit" name="button">Save</button>
+      </fieldset>
+      <!--END Nested Fieldset for Reaname -->
+
+      <!--Nested Fieldset for Summary-->
+      <fieldset class="summary">
+        <legend>Summary</legend>
+        <table>
+          <tr>
+            <td>Number of Groups</td>
+            <td name="summary_values">
+              {%if summary%}
+                {{summary[0]}}
+              {%endif%}
+            </td>
+          </tr>
+          <tr>
+            <td>Contacts in Current Group</td>
+            <td name="summary_values">
+              {%if summary%}
+                {{summary[1]}}
+              {%endif%}
+            </td>
+          </tr>
+          <tr>
+            <td>Number of all contacts</td>
+            <td name="summary_values">
+              {%if summary%}
+                {{summary[2]}}
+              {%endif%}
+            </td>
+          </tr>
+        </table>
+      </fieldset>
+      <div class="clear"></div>
+      <hr>
+      <!--END Nested Fieldset for Summary-->
+
+      <!--Nested Fieldset for remove setting -->
+      <fieldset class="remove">
+        <legend>Remove</legend>
+        <label for="">Select Group</label>
+        <select id="remove_group_select" class="" name="remove_group_select">
+          {%if groups%}
+            {%for i in groups%}
+              <option value="">{{i[0]}}</option>
+            {%endfor%}
+          {%endif%}
+        </select>
+        <button type="submit" name="button">Remove Group</button><br><hr>
+
+        <input id="opt1" type="radio" name="remove_radio" value="opt1" checked>
+        <label for="opt1">Move all contacts to default Group</label><br>
+
+        <input id="opt2" type="radio" name="remove_radio" value="opt2">
+        <label for="opt2">Move Contact to Specific Group</label>
+        <select id="remove_group_move_to" class="" name="remove_group_move_to" disabled>
+          {%if groups%}
+            {%for i in groups%}
+              <option value="">{{i[0]}}</option>
+            {%endfor%}
+          {%endif%}
+        </select><br>
+
+        <input id="opt3" type="radio" name="remove_radio" value="opt3">
+        <label id="remove_move_to_text" for="opt3">Move Contact to New Group </label>
+        <input id="remove_move_to_new" type="text" name="remove_move_to_new" value="" disabled><br>
+
+        <input id="opt4"type="radio" name="remove_radio" value="opt4">
+        <label for="opt4">Remove all contact in selected Group</label>
+
+      </fieldset>
+      <!--END Nested Fieldset for remove setting -->
+    </fieldset>
+
+    <input id="add_api" type="hidden" name="add_api" value="">
+
+    <!--END Main Fieldset-->
+  </form>
 </div>
 {%endblock%}
 

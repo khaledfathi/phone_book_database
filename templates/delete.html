@@ -5,9 +5,39 @@
 {%endblock%}
 
 {%block result_area%}
-<div class="under_const">
-  <h1>DELTE PAGE</h1>
-  <h3>UNDER CONSTRUCTION</h3>
+<div class="delete_block">
+  <div id="filter_div" class="filter_div" >
+    <label for="">Filter</label>
+    <input id ="filter" type="text" name="filter" value="">
+    <label for="">By</label>
+    <input type="radio" name="filter_by" value="name" checked>
+    <label for="">Name</label>
+    <input type="radio" name="filter_by" value="phone_number">
+    <label for="">Phone</label>
+    <input type="radio" name="filter_by" value="email">
+    <label for="">Email</label>
+  </div>
+  <!--Delete Configuration Area-->
+  <div class="delete_options">
+    <button id="one_by_one" type="button" name="button">One By One</button>
+    <button id="mark" type="button" name="button">Mark</button>
+    <button id="delete_button" type="button" name="button" hidden disabled>Delete</button>
+    <button id="delete_all" class="delete_all_button" type="button" name="button">Delete All</button>
+    <input id="selected_id" type="hidden" name="" value="">
+  </div>
+  <div  class="flash_message_div">
+      <!--FLASH MEASSEGES-->
+  </div>
+  <div id="table_div" class="table_div">
+    <table id="res_table">
+      {%if result%}
+        {%include 'includes/include_delete_page.html'%}
+      {%endif%}
+    </table>
+  </div>
+  <!--END - Filter Section -->
+
+
 </div>
 {%endblock%}
 

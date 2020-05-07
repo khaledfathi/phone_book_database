@@ -1,5 +1,5 @@
 #main Actions lib
-import sqlite3
+import sqlite3 , json
 
 class database :
     "data base controller class"
@@ -142,16 +142,13 @@ class database :
              data_dic["group"]) )
         return True #important to prevent  duplicated error
 
-    def update_record (self,request_form_get): ############################
+    def update_record (self,request_form_get):
         'new update in tables'
         data_label =["name","nickname","phone_number","address","work","email","notes","group","new_group_flag","id_value"]
         data_values = [request_form_get(i) for i in data_label]
         data_dic={}
         for key , i in enumerate(data_values) :
             data_dic[ data_label[key] ]=i.strip()
-
-        print (data_dic)#THIS LINE FOR TESTING ONLY
-
         def check_this_row():
             "Nested Function that do : check if update is same as the original record"
             if self.query_statment("SELECT * FROM phone_book WHERE name ='{}' and nickname='{}' and phone_number='{}' and address='{}' and work='{}' and email='{}' and notes='{}' and group_='{}' ".format(\
@@ -220,9 +217,86 @@ class database :
             for cells in rows[1:] :
                 html+= "<td id='"+str(rows[0])+"'>" + str(cells) + "</td>"
             html+="</td>"
-        with open("templates/include.html","w") as f :
+        with open("templates/includes/include_edit_page.html","w") as f :
             f.write(html)
         return True
+
+    def query_all_for_delete_page (self):
+        "use as a main result table , it will be first render for 'delete page' "
+        data = self.query_all("phone_book")
+        html="""
+        <thead>
+            <td>Name</td>
+            <td>Nickname</td>
+            <td>Phone Number</td>
+            <td>Address</td>
+            <td>Work</td>
+            <td>Email</td>
+            <td>Notes</td>
+            <td>Group</td>
+            <td>Mark</td>
+        </thead>
+        """
+        for rows in data :
+            html+="<tr name='rows' id='"+str(rows[0])+"'>"
+            for cells in rows[1:] :
+                html+= "<td id='"+str(rows[0])+"'>" + str(cells) + "</td>"
+            html+="</td><td><button id="+str(rows[0])+" name='delete_row'>Delete</button></td>"
+        with open("templates/includes/include_delete_page.html","w") as f :
+            f.write(html)
+        return True
+###############################
+###############################
+###############################
+    def edit_groups (self , group='default'):
+        'get summary for summary page'
+        res=[]
+        #count groups
+        res.append(str(self.query_statment("SELECT count(group_) FROM groups_")[0][0]))
+        #count contacts in group
+        res.append(str(self.query_statment("SELECT count(name) FROM phone_book WHERE group_ ='%s'"% group)[0][0]))
+        #count all contacts in group
+        res.append(str(self.query_statment("SELECT count(name) FROM phone_book")[0][0]))
+        return res
+
+    def mange_group(self,request_form=False  , request_json=False):###########################
+        results={} #will return every thing from this function
+        form_dic={} #data from form formated
+        if  request_form :
+            elements=["rename_field","new_group_text","remove_move_to_new","add_api"]
+            for i in elements :
+                form_dic[i] = request_form(i)
+            form_dic["add_api"] = json.loads(form_dic["add_api"])
+            results["form_dic"]=form_dic #save form data in result dictionary to use it in return
+            results["summary"]= self.edit_groups(form_dic["add_api"]["selected_group"]) # data for summary table
+
+            if form_dic["add_api"]["case"] =="rename" :
+                if not form_dic["rename_field"]:
+                    results["rename"] ="Nothing Changed : Empty Field"
+                elif form_dic['add_api']["selected_group"] == 'default':
+                    results["rename"] ="Error : You cant Edit 'default' Group"
+                elif form_dic["add_api"]["case"] == "create_new":
+                    #check duplication first
+                    #handle error
+                    #insert new group
+                    results["create_new"] ="1"
+                    return"DONE"
+                else :
+                    #self.query_statment("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["rename_field"] , form_dic['add_api']['selected_group']))
+                    results["rename"] ="Group Renamed"
+
+                return results
+
+            return results
+        elif request_json:
+            ajax_dic = request_json
+            results["summary"]= self.edit_groups(ajax_dic["selected_group"]) # data for summary table
+            return results
+
+
+
+
+
 
 class api (database) :
     'api class has method deal with ajax'
@@ -270,3 +344,51 @@ class api (database) :
             html+="</td>"
         api["html"] = html
         return api
+
+    def delete_type (self,api):
+        "change table in 'delete page' depend on mark button case"
+        res = self.query_statment("select * from phone_book where "+ api["filter_by"]+" like \'%" +api["filter"]+"%\'")
+        html="""
+        <thead>
+            <td>Name</td>
+            <td>Nickname</td>
+            <td>Phone Number</td>
+            <td>Address</td>
+            <td>Work</td>
+            <td>Email</td>
+            <td>Notes</td>
+            <td>Group</td>
+            <td>Mark</td>
+        </thead>
+        """
+        for rows in res :
+            html+="<tr name='rows' id='"+str(rows[0])+"'>"
+            for cells in rows[1:] :
+                html+= "<td id='"+str(rows[0])+"'>" + str(cells) + "</td>"
+            if api["case"]=="one_by_one":
+                html+="</td><td><button name='delete_row' id = '"+str(rows[0])+"'>Delete</button></td>"
+            elif api["case"]== "mark":
+                html+="</td><td><input type='checkbox' name='checkbox_row' id = '"+str(rows[0])+"'></td>"
+            elif api["case"]=="delete_alL":
+                api["html"]=="ALL DELETED"
+            else :
+                html+="</td><td><button name='delete_row' id = '"+str(rows[0])+"'>Delete</button></td>"
+
+        api["html"] = html
+        return api
+    def delete_action (self,api):
+        if api["case"] == "delete_one":
+            self.sql("DELETE FROM phone_book WHERE id = "+api["selected_id"][0])
+            print ("DONE")
+            api["case"]="one_by_one"
+            api["response"]="Record Deleted - OK"
+            return self.delete_type(api)
+        elif api["case"] == "marked_row":
+            for i in api["selected_id"]:
+                self.sql("DELETE FROM phone_book WHERE id = "+str(i))
+                api["case"]="mark"
+                api["response"]="Record Deleted - OK"
+            return self.delete_type(api)
+        elif api["case"]=="delete_all" :
+            self.sql("DELETE FROM phone_book")
+            return self.delete_type(api)

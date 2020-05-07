@@ -3,7 +3,7 @@
 #Pure JS coding [No Jquery], Pure SQL coding [No ORM]
 
 from flask import Flask , render_template , redirect , url_for , request , send_file , flash , jsonify , Response
-import actions , os , json
+import actions , os , json , time
 
 #decomment the next line in server [pythonanywhere.com] to fix path problem
 # os.chdir(os.getcwd()+"/mysite/")
@@ -13,6 +13,7 @@ api=actions.api("database/phone_app_db.db")
 
 app=Flask(__name__)
 app.secret_key = b'\x06\x03\x02cA\x04\x15@'
+app.config['TEMPLATES_AUTO_RELOAD'] = True  #fix caching problem with pythonanywhere.com
 
 
 @app.route("/")
@@ -48,10 +49,6 @@ def add_ (msg=None):
             return render_template("add.html" , groups = groups , group_error =" you are entered an existing Data in DataBase | check [name , phone number , new group]")
     return render_template("add.html" , groups = groups )
 
-###################################
-############ WORK AREA ############
-###################################
-
 @app.route("/edit" , methods=["GET" , "POST"])
 def edit_ ():
     'Edit Page'
@@ -76,25 +73,60 @@ def edit_ ():
     result = db.query_all_for_edit_page()
     return render_template("edit.html" , result = result)
 
+@app.route("/delete" , methods=["GET","POST"])
+def delete_ ():
+    'Delete Page'
+    if request.method == "POST":
+        req_api=request.get_json()
+        print (req_api)
+        if req_api["case"] == "one_by_one" or  req_api["case"] == "mark":
+            return jsonify(api.delete_type(req_api))
+
+        elif req_api["case"] in ["marked_row" , "delete_one" , "delete_all"] :
+            return jsonify(api.delete_action(req_api))
+        else:
+            return "check cases in api" # DEBUG:
+    result = db.query_all_for_delete_page()
+    return render_template("delete.html" , result=result)
+
+###################################
+############ WORK AREA ############
+###################################
+
+@app.route("/groups" , methods=["GET","POST"])
+def groups_ (summary=None):
+    'Groups Page'
+    groups = db.query_statment("select * from groups_")#query groups first then put them in all select elements
+    if request.method == "POST":
+        try : # for ajax
+            ajax = request.get_json()
+            if ajax["case"] == "update_summary":
+                summary = db.mange_group(request_json=ajax)["summary"]
+                return jsonify(summary)
+        except : # for form
+            form_api = json.loads(request.form.get("add_api"))
+            form_data = db.mange_group (request_form=request.form.get)
+            if form_api["case"] =="rename" :
+                flash(form_data["rename"])
+                return render_template("groups.html",summary=form_data["summary"] , groups = groups)
+            elif form_api["case"] == "create_new":
+                #flash(form_data["rename"])
+                #return render_template("groups.html",summary=form_data["summary"] , groups = groups)
+                return "DONE"
+            else:
+                return "else"
+
+    summary  = db.edit_groups()
+    return render_template("groups.html",summary=summary , groups = groups)
+
 ##########################################
 ############ END -- WORK AREA ############
 ##########################################
 
-@app.route("/delete")
-def delete_ ():
-    'Delete Page'
-    return render_template("delete.html")
-
-@app.route("/groups")
-def groups_ ():
-    'Groups Page'
-    return render_template("groups.html")
 
 @app.route("/backup_and_restore")
 def backup_restore_ ():
     return render_template("backup_and_restore.html")
-
-
 
 
 @app.route("/about")

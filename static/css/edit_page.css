@@ -1,9 +1,4 @@
 /*Filter Section*/
-.{
-  border:1px solid black;
-  margin:50px auto;
-  height:850px;
-}
 .filter_div{
   background-color:#5195FF;
   box-shadow: 0px 0px 15px #51ECFF;
@@ -96,7 +91,7 @@
 }
 .edit_controller button {
 float: right;
-  
+
 }
 .edit_controller input{
 float: left;

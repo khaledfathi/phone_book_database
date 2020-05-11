@@ -5,12 +5,12 @@
 {%endblock%}
 
 {%block result_area%}
-
   {%with messages = get_flashed_messages()%}
     {%if messages%}
-      <h3>{{messages[0]}}</h3>
+      <h3 id="flash_message" style="text-align:center;padding-top:60px;">{{messages[0]}}</h3>
     {%endif%}
   {%endwith%}
+
   <form class="" method="post" enctype="multipart/form-data">
     <div class="export_import">
       <label for="">Export as </label>

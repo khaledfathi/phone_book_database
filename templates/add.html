@@ -11,19 +11,19 @@
   <form class="add_form"  method="POST">
     <div class="add_inputs">
       <label for="">Name<span>*</span></label>
-      <input id="name_" type="text" name="name" value="" required placeholder="Name">
+      <input id="name_" type="text" name="name" value="" required placeholder="Name" maxlength="150">
       <label for="">Nickname</label>
-      <input id="nickname" type="text" name="nickname" value="" placeholder="Nickname"><br>
+      <input id="nickname" type="text" name="nickname" value="" placeholder="Nickname" maxlength="150"><br>
       <label for="">Phone Number<span>*</span></label>
-      <input id="phone_number" type="text" name="phone_number" value="" required placeholder="01234567891">
+      <input id="phone_number" type="text" name="phone_number" value="" required placeholder="01234567891" pattern="[0-9]{0,20}" title="Enter Number Only" maxlength="15">
       <label for="">Address</label>
-      <input id="address" type="text" name="address" value="" placeholder="street , city , country .."><br>
+      <input id="address" type="text" name="address" value="" placeholder="street , city , country .." maxlength="150"><br>
       <label for="">Work</label>
-      <input id="work" type="text" name="work" value="" placeholder="work place">
+      <input id="work" type="text" name="work" value="" placeholder="work place" maxlength="150">
       <label for="">E-Mail</label>
-      <input id="email" type="text" name="email" value="" placeholder="name@domain.com"><br>
+      <input id="email" type="text" name="email" value="" placeholder="name@domain.com" maxlength="150"><br> 
       <label for="">Notes</label>
-      <input id="notes" type="text" name="notes" value="" placeholder="notes about him">
+      <input id="notes" type="text" name="notes" value="" placeholder="notes about him" maxlength="255">
 
       <label for="">Groups</label>
       <select id="group_list" class="" name="">
@@ -36,7 +36,7 @@
 
       <input id="group_checkbox" type="checkbox" name="" value="">
       <label class="new_group_label" for="">New Group</label>
-      <input id="group_text" type="text" name="new_group" value="" disabled placeholder="add new group">
+      <input id="group_text" type="text" name="new_group" value="" disabled placeholder="add new group" maxlength="30">
     </div>
 
     <div class="add_controller">

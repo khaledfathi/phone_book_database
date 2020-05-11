@@ -13,7 +13,7 @@
         {%with messages = get_flashed_messages()%}
           {%if messages%}
             {%for msg in messages%}
-              <h3>{{msg}}</h3>
+              <h3 id="flash_msg">{{msg}}</h3>
             {%endfor%}
           {%endif%}
         {%endwith%}
@@ -87,7 +87,7 @@
             {%endfor%}
           {%endif%}
         </select>
-        <button type="submit" name="button">Remove Group</button><br><hr>
+        <button id="remove_group_button" type="submit" name="button">Remove Group</button><br><hr>
 
         <input id="opt1" type="radio" name="remove_radio" value="opt1" checked>
         <label for="opt1">Move all contacts to default Group</label><br>

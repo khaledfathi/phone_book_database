@@ -5,10 +5,67 @@
 {%endblock%}
 
 {%block result_area%}
-<div class="under_const">
-  <h1>BACKUP/RESTORE PAGE</h1>
-  <h3>UNDER CONSTRUCTION</h3>
-</div>
+
+  {%with messages = get_flashed_messages()%}
+    {%if messages%}
+      <h3>{{messages[0]}}</h3>
+    {%endif%}
+  {%endwith%}
+  <form class="" method="post" enctype="multipart/form-data">
+    <div class="export_import">
+      <label for="">Export as </label>
+      <select id="export_type_selected" class="" name="">
+        <option value="" selected>SQLite3.db</option>
+        <option value="">CSV</option>
+        <option value="">SQL</option>
+        <option value="">HTML</option>
+      </select>
+      <button id="export_button" class="export_button" type="submit" name="export_button">Export</button>
+      {%if last_export%}
+        <span>Last Export : {{last_export}}</span>
+      {%endif%}
+      <br>
+
+      <label for="">Import</label>
+      <input type="file" name="import_file" value="" accept=".db">
+      <button id="import_button" type="submit" name="import_button">Import</button>
+      {%if last_import%}
+        <span>Last Import : {{last_import}}</span>
+      {%endif%}
+
+      <input id="import_export_flag" type="hidden" name="import_export_flag" value="">
+      <input id="export_file_type" type="hidden" name="export_file_type" value="">
+    </div>
+    <div class="server_backup">
+      <label  for="">In Server backup</label>
+      <button id="backup_button" type="button" name="button">Backup</button>
+      {%if last_backup_restore%}
+        <span id="backup_date_time">Last Backup : {{last_backup_restore[0][0][1]}}</span><br>
+      {%endif%}
+
+      <label for="">In Server Restore</label>
+      <button id="restore_button" type="button" name="button">Restore</button>
+      {%if last_backup_restore%}
+        <span id="restore_date_time">Last Restore : {{last_backup_restore[1][0][1]}}</span><br>
+      {%endif%}
+
+    </div>
+
+    <div class="history">
+      <span>History</span>
+      <table id="history_table">
+        {%if history%}
+          {%for i in history%}
+            <tr>
+              {%for x in i%}
+                <td>{{x}}</td>
+              {%endfor%}
+            </tr>
+          {%endfor%}
+        {%endif%}
+      </table>
+    </div><div class="clear"></div>
+  </form>
 {%endblock%}
 
 {%block javascript%}

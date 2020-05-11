@@ -37,6 +37,7 @@ class database :
             self.sql("INSERT INTO groups_ VALUES ('default')")
         except :
             pass
+
     def query_all(self,table):
         'return all data in the table/s'
         with sqlite3.connect(self.db_file) as conn :
@@ -59,7 +60,6 @@ class database :
         "pattern":query_rules[1],\
         "order":query_rules[2],\
         "groups":query_rules[3]}
-
         final_statment = "select name , Nickname , phone_number ,\
          address , work , email , notes, group_\
           from phone_book where "+query_rules["search_by"]+" "
@@ -84,17 +84,13 @@ class database :
             select * from phone_book where phone_book.Name =''
             and group_='' order by name ASC"""
             return no_data
-
         elif query == "*all*" : #query all table
             return "select name , Nickname , phone_number ,\
              address , work , email , notes, group_ from phone_book order by name "+order
-
         elif general_search_flag == "0": #default search criteria is search by character with no rules
             print ("aaaa")
             return "SELECT name , nickname , phone_number , address , work , \
             email , notes , group_ FROM phone_book where name like \'%" +query+"%\'"
-
-
         return final_statment
 
     def new_record (self, request_form_get):
@@ -104,14 +100,11 @@ class database :
         data_dic={}
         for key , i in enumerate(data_values) :
             data_dic[ data_label[key] ]=i.strip()
-
         #if new group - add this group in groups table first , then record all new data
         if data_dic["new_group_flag"] == "1":
-
             #check duplicated entry group with database
             if self.query_statment("select * from groups_ where group_ = '{}'".format(data_dic["group"])):
                 return False
-
             self.sql("INSERT INTO groups_ VALUES ('{}')".format(data_dic["group"]))#record new group first
             self.sql("INSERT INTO phone_book (name , nickname , phone_number , address , work , email , notes , group_)\
              VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}' )".\
@@ -124,12 +117,10 @@ class database :
              data_dic["notes"],\
              data_dic["group"]) )
         else : # do the record
-
             #check duplicated entry [name , phone_number] with database (because they're unique in database)
             if self.query_statment("SELECT * FROM phone_book where name = '{}'".format(data_dic["name"])) or \
             self.query_statment("SELECT * FROM phone_book where phone_number = '{}'".format(data_dic["phone_number"])):
                 return False
-
             self.sql("INSERT INTO phone_book (name , nickname , phone_number , address , work , email , notes , group_)\
              VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}' )".\
              format(data_dic["name"],\
@@ -149,6 +140,7 @@ class database :
         data_dic={}
         for key , i in enumerate(data_values) :
             data_dic[ data_label[key] ]=i.strip()
+
         def check_this_row():
             "Nested Function that do : check if update is same as the original record"
             if self.query_statment("SELECT * FROM phone_book WHERE name ='{}' and nickname='{}' and phone_number='{}' and address='{}' and work='{}' and email='{}' and notes='{}' and group_='{}' ".format(\
@@ -267,14 +259,11 @@ class database :
             form_dic["add_api"] = json.loads(form_dic["add_api"])
             results["form_dic"]=form_dic #save form data in result dictionary to use it in return
             results["summary"]= self.edit_groups(form_dic["add_api"]["selected_group"]) # data for summary table
-
             if form_dic["add_api"]["case"] =="rename" and form_dic["add_api"]["create_new"]=="0":#case rename group
                 if not form_dic["rename_field"]:
                     results["rename"] ="Nothing Changed : Empty Field"
-
                 elif  form_dic['add_api']["selected_group"].casefold() == 'default':
                     results["rename"] ="Error : You cant Edit 'default' Group"
-
                 else :
                     if self.query_statment("SELECT * FROM groups_ Where group_='%s'"%form_dic["rename_field"]) :
                         results["rename"] ="Nothing Change : Duplicated Group Name"
@@ -283,19 +272,16 @@ class database :
                         self.sql("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["rename_field"] , form_dic["add_api"]["selected_group"])) #copy old contact to new group
                         self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) ) #delete old group
                         results["rename"] ="Group Renamed"
-
             elif form_dic["add_api"]["case"] =="rename" and form_dic ["add_api"]["create_new"]=="1": # case create new group
                 if not form_dic["new_group_text"] :
                     results["create_new"] ="Nothing Changed : Empty Field"
                 elif form_dic["new_group_text"].casefold() == "default":
                     results["create_new"] ="name 'default is not allowed'"
-
                 elif self.query_statment("SELECT * FROM groups_ Where group_='%s'"%form_dic["new_group_text"]) :
                     results["create_new"] ="Nothing Change : Duplicated Group Name"
                 else:
                     self.sql("INSERT INTO groups_ VALUES ('{}')".format(form_dic["new_group_text"]) ) # creat new group
                     results["create_new"] = "New Group Created"
-
             elif form_dic["add_api"]["case"] == "remove": #####################3
                 if form_dic["add_api"]["remove_option"] == "opt1":
                     if form_dic["add_api"]["selected_group"] == "default":
@@ -335,10 +321,6 @@ class database :
             results["summary"]= self.edit_groups(ajax_dic["selected_group"]) # data for summary table
             return results
 
-
-###############################
-######### WOEK HERE ###########
-###############################
     def other_database(self , database_file , statment ,fetch=False):
         with sqlite3.connect(database_file) as conn:
             cur = conn.cursor()
@@ -396,7 +378,6 @@ class database :
             restore = restore_
         else :
             restore = [[]]
-
         return (backup , restore)
 
     def history_update (self): # for render
@@ -411,17 +392,6 @@ class database :
                 html +="<td>"+str(cells)+"</td>"
             html+="</tr>"
         return html
-
-
-
-
-
-
-
-
-
-
-
 
 class api (database) :
     'api class has method deal with ajax'
@@ -518,8 +488,6 @@ class api (database) :
             self.sql("DELETE FROM phone_book")
             return self.delete_type(api)
 
-
-#########
 def allowed_file(filename,allowed_extenstions):
     'check extenstions'
     last_dot_index=0
@@ -550,7 +518,7 @@ def export_file (export_as ):
             with open ("files/csv_db.csv" ,"wb") as f :
                 f.write("id,name,nickname,phone_number,address,work,email,notes,group\n".encode())
                 for row in query :
-                    f.write( (",".join([str(i) for i in row])+"\n").encode() )
+                    f.write( (",".join([str(i).replace(",","-") for i in row])+"\n").encode() )
         return "files/csv_db.csv"
 
     elif export_as == "SQL" :
@@ -597,9 +565,12 @@ def last_export (db_object):
         return db_object.other_database("database/history.db", "SELECT date_time from history where status ='Export' order by id DESC limit 1" , True ) [0][0]
     except :
         return ""
+
 def last_import(db_object):
     try :
         return db_object.other_database("database/history.db", "SELECT date_time from history where status ='Import' order by id DESC limit 1" , True ) [0][0]
 
     except :
         return ""
+
+### END OF FILE ###

@@ -2,6 +2,8 @@
 #Died line : expected  30 days or less
 #Pure JS coding [No Jquery], Pure SQL coding [No ORM]
 
+#END ON 11/05/2020 [14 days] avg hours each day 9hr [max 13hr , min 5hr]#
+
 from flask import Flask , render_template , redirect , url_for , request , send_file , flash , jsonify , Response
 import actions , os , json , time , shutil
 
@@ -35,12 +37,10 @@ def search_ (results=None , no_results=None):
         form_data =db.qurey(request.form.get("query") ,\
          request.form.get("query_rules") ,\
          request.form.get("general_search_flag"))
-
         results = db.query_statment(form_data)
         if not results :
             no_results = "There is No Match Data Found"
         return render_template("search.html" , result=results , no_results=no_results , groups=groups )
-
     return render_template("search.html" , result=results , no_results=no_results , groups=groups )
 
 @app.route("/add" , methods=["GET" , "POST"])
@@ -75,7 +75,6 @@ def edit_ ():
             elif (db.update_record(request.form.get)) == "duplicated":
                 flash("Record Update Failed : Duplicate Data")
                 return redirect(url_for("edit_"))
-
     result = db.query_all_for_edit_page()
     return render_template("edit.html" , result = result)
 
@@ -87,7 +86,6 @@ def delete_ ():
         print (req_api)
         if req_api["case"] == "one_by_one" or  req_api["case"] == "mark":
             return jsonify(api.delete_type(req_api))
-
         elif req_api["case"] in ["marked_row" , "delete_one" , "delete_all"] :
             return jsonify(api.delete_action(req_api))
         else:
@@ -111,24 +109,17 @@ def groups_ (summary=None):
             if form_api["case"] =="rename" and form_api["create_new"]=="0":
                 flash(form_data["rename"])
                 return redirect(url_for("groups_"))
-
             elif form_api["case"] == "rename" and form_api["create_new"]=="1":
                 flash(form_data["create_new"])
                 return redirect(url_for("groups_"))
-
             elif form_api["case"] == "remove" :
                 flash(form_data["remove"])
                 return redirect(url_for("groups_"))
             else:
                 return redirect(url_for("groups_"))
-
     summary  = db.edit_groups()
     groups = db.query_statment("select * from groups_")
     return render_template("groups.html",summary=summary , groups = groups)
-
-###################################
-############ WORK AREA ############
-###################################
 
 @app.route("/backup_and_restore" , methods=["GET", "POST"])
 def backup_restore_ ():
@@ -162,18 +153,12 @@ def backup_restore_ ():
             resp =jsonify(db.restore())
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
-        
+
     history = db.history_update()
     last_backup_restore = db.last_backup_restore ()
     last_import=actions.last_import(db)
     last_export=actions.last_export(db)
     return render_template("backup_and_restore.html" , history=history ,last_backup_restore = last_backup_restore , last_import=last_import , last_export=last_export)
-
-##########################################
-############ END -- WORK AREA ############
-##########################################
-
-
 
 @app.route("/about")
 def about_ ():

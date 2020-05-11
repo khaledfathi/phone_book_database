@@ -19,7 +19,6 @@ var api={
   create_new:"0",
   selected_group:"default",
   remove_option:"opt1"
-
 };
 
 /*#*****#* EDIT GROUP*#*****#*/
@@ -83,7 +82,6 @@ for (var i=0;i<remove_radio.length;i++){
     }
   })
 }
-
 
 //remove gtoup button action
 remove_group_button.onclick= function (){

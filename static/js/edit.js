@@ -23,7 +23,6 @@ update_button = document.getElementById("update_button"),
 id_value = document.getElementById("id_value"),
 flash_message = document.getElementById("flash_message");
 
-
 //api structure
 var api={
   case:"",
@@ -44,10 +43,6 @@ var api={
   group_rules:"",
   html:""
 };
-
-/*##GENERAL FUNCTIONS ##*/
-
-/*##END -- GENERAL FUNCTIONS ##*/
 
 /*### all table tr onclick event , with ajax - return query result###*/
 var tr = document.getElementsByTagName("tr");
@@ -76,7 +71,6 @@ function select_for_edit (event){
       work.value=data.work
       email.value=data.email
       notes.value=data.notes
-
       var group_text="";
       for (i in data.group_list){
         group_text+="<option>"+data.group_list[i]+"</option>"
@@ -95,7 +89,6 @@ filter.oninput = function (){
   try{ // i used 'try' because this element is not be created yet
       flash_message.innerHTML="" //remove last flash message
   }catch{}
-
   table_div.removeAttribute("hidden")
   edit_section.setAttribute("hidden","")
   var req = new XMLHttpRequest();

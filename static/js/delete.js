@@ -8,7 +8,6 @@ var filter = document.getElementById("filter"),
     res_table = document.getElementById("res_table"),
     selected_id=document.getElementById("selected_id"); //hidden
 
-
 /*##api structure##*/
 api={
   case:"",//default if [no selection]
@@ -104,7 +103,6 @@ function delete_mark_event(){
   }
 }
 /*##END -- build event for Mark 'checkbox' in table for 'deleteing multi record'##*/
-
 
 /*## 'one by one' button Event Action */
 one_by_one.addEventListener('click',function (){
@@ -202,7 +200,6 @@ filter.addEventListener('input', function (event){
 })
 /*##END -- 'filter' field Event Action [on input ]*/
 
-
 /*##the first page 'delete button event'##*/
 var delete_row = document.getElementsByName("delete_row")
 for (var i=0;i<delete_row.length;i++){
@@ -226,7 +223,6 @@ for (var i=0;i<delete_row.length;i++){
   })
 }
 /*##END -- the first page 'delete button event'##*/
-
 
 /*Delete Button event onclick*/
 delete_button.onclick = function (){

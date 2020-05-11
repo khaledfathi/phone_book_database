@@ -73,7 +73,6 @@ function get_rules (){
   order.options[order.selectedIndex].innerHTML+","+
   groups.options[groups.selectedIndex].innerHTML
 }
-
 submit.onclick  = function (){
   get_rules()
 }

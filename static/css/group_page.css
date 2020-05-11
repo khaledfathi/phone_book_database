@@ -70,6 +70,12 @@ form fieldset{
   width:212px;
 }
 
+.flash_div{
+  height:60px;
+}
+.flash_div h3 {
+  text-align: center;
+}
 /***********/
 [title="Mange Groups"]{
     background-color: #5195FF !important;

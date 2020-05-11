@@ -3,17 +3,23 @@
 #Pure JS coding [No Jquery], Pure SQL coding [No ORM]
 
 from flask import Flask , render_template , redirect , url_for , request , send_file , flash , jsonify , Response
-import actions , os , json , time
+import actions , os , json , time , shutil
 
 #decomment the next line in server [pythonanywhere.com] to fix path problem
-# os.chdir(os.getcwd()+"/mysite/")
+#os.chdir(os.getcwd()+"/mysite/")
 
 db=actions.database("database/phone_app_db.db")
+db.other_database("database/history.db","create")
 api=actions.api("database/phone_app_db.db")
+
+UPLOAD_FOLDER="uploads/"
+ALLOWED_EXTENTIONS={"db"}
 
 app=Flask(__name__)
 app.secret_key = b'\x06\x03\x02cA\x04\x15@'
 app.config['TEMPLATES_AUTO_RELOAD'] = True  #fix caching problem with pythonanywhere.com
+app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
+app.config['DOWNLOAD_PATH'] ="files/mysite.zip"
 
 
 @app.route("/")
@@ -89,44 +95,84 @@ def delete_ ():
     result = db.query_all_for_delete_page()
     return render_template("delete.html" , result=result)
 
+@app.route("/groups" , methods=["GET","POST"])
+def groups_ (summary=None):
+    'Groups Page'
+    if request.method == "POST":
+        try : # for ajax
+            ajax = request.get_json()
+            if ajax["update_summary"] == "1":
+                summary = db.mange_group(request_json=ajax)["summary"]
+                return jsonify(summary)
+        except : # for form
+            form_data = db.mange_group (request_form=request.form.get)
+            print (form_data)
+            form_api = json.loads(request.form.get("add_api"))
+            if form_api["case"] =="rename" and form_api["create_new"]=="0":
+                flash(form_data["rename"])
+                return redirect(url_for("groups_"))
+
+            elif form_api["case"] == "rename" and form_api["create_new"]=="1":
+                flash(form_data["create_new"])
+                return redirect(url_for("groups_"))
+
+            elif form_api["case"] == "remove" :
+                flash(form_data["remove"])
+                return redirect(url_for("groups_"))
+            else:
+                return redirect(url_for("groups_"))
+
+    summary  = db.edit_groups()
+    groups = db.query_statment("select * from groups_")
+    return render_template("groups.html",summary=summary , groups = groups)
+
 ###################################
 ############ WORK AREA ############
 ###################################
 
-@app.route("/groups" , methods=["GET","POST"])
-def groups_ (summary=None):
-    'Groups Page'
-    groups = db.query_statment("select * from groups_")#query groups first then put them in all select elements
-    if request.method == "POST":
-        try : # for ajax
-            ajax = request.get_json()
-            if ajax["case"] == "update_summary":
-                summary = db.mange_group(request_json=ajax)["summary"]
-                return jsonify(summary)
-        except : # for form
-            form_api = json.loads(request.form.get("add_api"))
-            form_data = db.mange_group (request_form=request.form.get)
-            if form_api["case"] =="rename" :
-                flash(form_data["rename"])
-                return render_template("groups.html",summary=form_data["summary"] , groups = groups)
-            elif form_api["case"] == "create_new":
-                #flash(form_data["rename"])
-                #return render_template("groups.html",summary=form_data["summary"] , groups = groups)
-                return "DONE"
-            else:
-                return "else"
-
-    summary  = db.edit_groups()
-    return render_template("groups.html",summary=summary , groups = groups)
+@app.route("/backup_and_restore" , methods=["GET", "POST"])
+def backup_restore_ ():
+    if request.method == "POST" :
+        form_case=request.form.get("import_export_flag")
+        if form_case =="export" :##########
+            app.config['DOWNLOAD_PATH']= actions.export_file(request.form.get("export_file_type") )
+            return redirect(url_for("download_"))
+        elif form_case == "import":
+            file_ = request.files['import_file']
+            if file_.filename == '':
+                flash("Error : You did not select any file")
+                return redirect(url_for("backup_restore_"))
+            elif file_ and actions.allowed_file(file_.filename , ["db"]):
+                import_file = request.files["import_file"]
+                import_file.save(os.path.join(app.config["UPLOAD_FOLDER"],"testing.db"))
+                if actions.import_file(db) :
+                    flash("File Imported")
+                    return redirect(url_for("backup_restore_"))
+                else :
+                    flash("Error : database File is not compatible")
+                    return redirect(url_for("backup_restore_"))
+            elif file_ and not actions.allowed_file(file_.filename , ["db"]):
+                flash("Error : File Type Not Allowed | select '.db' file only")
+                return redirect(url_for("backup_restore_"))
+        elif request.data.decode() =="backup" :
+            resp =jsonify(db.backup())
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+        elif request.data.decode() == "restore":
+            resp =jsonify(db.restore())
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+        
+    history = db.history_update()
+    last_backup_restore = db.last_backup_restore ()
+    last_import=actions.last_import(db)
+    last_export=actions.last_export(db)
+    return render_template("backup_and_restore.html" , history=history ,last_backup_restore = last_backup_restore , last_import=last_import , last_export=last_export)
 
 ##########################################
 ############ END -- WORK AREA ############
 ##########################################
 
-
-@app.route("/backup_and_restore")
-def backup_restore_ ():
-    return render_template("backup_and_restore.html")
 
 
 @app.route("/about")
@@ -140,8 +186,8 @@ def gpl3_ ():
     return render_template("gpl3.html")#i didnt create this template - i copied it from web
 
 @app.route("/download")#make user download file
-def send_project_file ():
-    return send_file("files/mysite.zip" , as_attachment=True)
+def download_ ():
+     return send_file(app.config['DOWNLOAD_PATH'] , as_attachment=True)
 
 
 

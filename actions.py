@@ -1,5 +1,5 @@
 #main Actions lib
-import sqlite3 , json
+import sqlite3 , json , datetime , shutil , os
 
 class database :
     "data base controller class"
@@ -245,9 +245,7 @@ class database :
         with open("templates/includes/include_delete_page.html","w") as f :
             f.write(html)
         return True
-###############################
-###############################
-###############################
+
     def edit_groups (self , group='default'):
         'get summary for summary page'
         res=[]
@@ -262,7 +260,7 @@ class database :
     def mange_group(self,request_form=False  , request_json=False):###########################
         results={} #will return every thing from this function
         form_dic={} #data from form formated
-        if  request_form :
+        if  request_form : #sent by form
             elements=["rename_field","new_group_text","remove_move_to_new","add_api"]
             for i in elements :
                 form_dic[i] = request_form(i)
@@ -270,28 +268,155 @@ class database :
             results["form_dic"]=form_dic #save form data in result dictionary to use it in return
             results["summary"]= self.edit_groups(form_dic["add_api"]["selected_group"]) # data for summary table
 
-            if form_dic["add_api"]["case"] =="rename" :
+            if form_dic["add_api"]["case"] =="rename" and form_dic["add_api"]["create_new"]=="0":#case rename group
                 if not form_dic["rename_field"]:
                     results["rename"] ="Nothing Changed : Empty Field"
-                elif form_dic['add_api']["selected_group"] == 'default':
+
+                elif  form_dic['add_api']["selected_group"].casefold() == 'default':
                     results["rename"] ="Error : You cant Edit 'default' Group"
-                elif form_dic["add_api"]["case"] == "create_new":
-                    #check duplication first
-                    #handle error
-                    #insert new group
-                    results["create_new"] ="1"
-                    return"DONE"
+
                 else :
-                    #self.query_statment("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["rename_field"] , form_dic['add_api']['selected_group']))
-                    results["rename"] ="Group Renamed"
+                    if self.query_statment("SELECT * FROM groups_ Where group_='%s'"%form_dic["rename_field"]) :
+                        results["rename"] ="Nothing Change : Duplicated Group Name"
+                    else:
+                        self.sql("INSERT INTO groups_ VALUES ('{}')".format(form_dic["rename_field"]) ) # creat new group
+                        self.sql("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["rename_field"] , form_dic["add_api"]["selected_group"])) #copy old contact to new group
+                        self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) ) #delete old group
+                        results["rename"] ="Group Renamed"
 
-                return results
+            elif form_dic["add_api"]["case"] =="rename" and form_dic ["add_api"]["create_new"]=="1": # case create new group
+                if not form_dic["new_group_text"] :
+                    results["create_new"] ="Nothing Changed : Empty Field"
+                elif form_dic["new_group_text"].casefold() == "default":
+                    results["create_new"] ="name 'default is not allowed'"
 
+                elif self.query_statment("SELECT * FROM groups_ Where group_='%s'"%form_dic["new_group_text"]) :
+                    results["create_new"] ="Nothing Change : Duplicated Group Name"
+                else:
+                    self.sql("INSERT INTO groups_ VALUES ('{}')".format(form_dic["new_group_text"]) ) # creat new group
+                    results["create_new"] = "New Group Created"
+
+            elif form_dic["add_api"]["case"] == "remove": #####################3
+                if form_dic["add_api"]["remove_option"] == "opt1":
+                    if form_dic["add_api"]["selected_group"] == "default":
+                        results["remove"] = "ERROR : Cant remove default group"
+                    else :
+                        self.sql("UPDATE phone_book set group_='default'")
+                        self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) )
+                        results["remove"]="Group Removed"
+                elif form_dic["add_api"]["remove_option"] == "opt2":
+                    if form_dic["add_api"]["selected_group"] == "default":
+                        results["remove"] = "ERROR : Cant remove default group"
+                    else:
+                        self.sql("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["add_api"]["selected_group_to"] , form_dic["add_api"]["selected_group"] ))
+                        self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) )
+                    results["remove"]="Group Removed and contacts moved to other group"
+                elif form_dic["add_api"]["remove_option"] == "opt3":
+                    if form_dic["add_api"]["selected_group"] == "default":
+                        results["remove"] = "ERROR : Cant remove default group"
+                    elif form_dic["remove_move_to_new"].casefold() == "default": #for case insensitve
+                        if self.sql("SELECT * from groups_ where group_ = '%s'"%form_dic["remove_move_to_new"] ) :
+                            results["remove"] = "ERROR : Duplicated Group"
+                    else :
+                        self.sql("INSERT INTO groups_ VALUES ('%s')"%form_dic["remove_move_to_new"])
+                        self.sql("UPDATE phone_book SET group_='{}' WHERE group_='{}'".format(form_dic["remove_move_to_new"] , form_dic["add_api"]["selected_group"] ))
+                        self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) )
+                        results["remove"]="Group Removed and contacts moved to other group"
+                elif form_dic["add_api"]["remove_option"] == "opt4":
+                    if form_dic["add_api"]["selected_group"] == "default":
+                        results["remove"] = "ERROR : Cant remove default group"
+                    else:
+                        self.sql("DELETE FROM phone_book WHERE group_ ='{}'".format( form_dic["add_api"]["selected_group"]) )
+                        self.sql("DELETE FROM groups_ WHERE group_='{}'".format(form_dic["add_api"]["selected_group"]) )
+                        results["remove"]="Group and contacts are Removed "
             return results
-        elif request_json:
+        elif request_json: # sent by ajax
             ajax_dic = request_json
             results["summary"]= self.edit_groups(ajax_dic["selected_group"]) # data for summary table
             return results
+
+
+###############################
+######### WOEK HERE ###########
+###############################
+    def other_database(self , database_file , statment ,fetch=False):
+        with sqlite3.connect(database_file) as conn:
+            cur = conn.cursor()
+            if statment == "create":
+                    cur.execute("""
+                    CREATE TABLE IF NOT EXISTS history (
+                      id integer primary key autoincrement ,
+                      status text  ,
+                      date_time text);
+                    """)
+                    conn.commit()
+            else :
+                cur.execute(statment)
+                if fetch :
+                    data = cur.fetchall()
+                    conn.commit()
+                    return data
+                else :
+                    conn.commit()
+
+    def get_date_time (self):
+        'get current date and time and reformate it , return string'
+        date_time =str(datetime.datetime.now())[:16]
+        day = date_time[8:10]
+        month = date_time[5:7]
+        year = date_time[0:4]
+        time =date_time[11:]
+        return day +"/"+ month +"/"+ year +" -- "+ time
+
+    def backup (self):
+        'copy current database file to backup folder [overwrite the old one]'
+        os.chdir(os.getcwd())
+        shutil.copy("database/phone_app_db.db" , "database/backups/phone_app_db.db")
+        date_time = self.get_date_time()
+        self.other_database("database/history.db", "INSERT INTO history ('status', 'date_time')VALUES ('Backup','%s')"%date_time)
+        return {"last_info":date_time ,"table":self.history_update_html()}
+
+    def restore (self):
+        'copy backuped database file to database folder [overwrite the old one]'
+        os.chdir(os.getcwd())
+        shutil.copy("database/backups/phone_app_db.db" , "database/phone_app_db.db")
+        date_time = self.get_date_time()
+        self.other_database("database/history.db", "INSERT INTO history ('status', 'date_time')VALUES ('Restore','%s')"%date_time)
+        return {"last_info":date_time ,"table":self.history_update_html()}
+
+
+    def last_backup_restore (self):
+        backup_ = self.other_database("database/history.db", "SELECT status , date_time FROM history where status ='Backup' ORDER BY id DESC limit 1 ", True)
+        restore_ = self.other_database("database/history.db", "SELECT status , date_time FROM history where status ='Restore' ORDER BY id DESC limit 1 ", True)
+        if backup_ :
+            backup = backup_
+        else :
+            backup =  [[]] #nested  empty list to be same pattern on normel case , like (item [0][0][1])
+        if restore_:
+            restore = restore_
+        else :
+            restore = [[]]
+
+        return (backup , restore)
+
+    def history_update (self): # for render
+        return self.other_database("database/history.db", "SELECT status , date_time FROM history ORDER BY id DESC", True)
+
+    def history_update_html (self):# for ajax
+        table = self.other_database("database/history.db", "SELECT status , date_time FROM history ORDER BY id DESC", True)
+        html=""
+        for i in table :
+            html +="<tr>"
+            for cells in i :
+                html +="<td>"+str(cells)+"</td>"
+            html+="</tr>"
+        return html
+
+
+
+
+
+
 
 
 
@@ -392,3 +517,89 @@ class api (database) :
         elif api["case"]=="delete_all" :
             self.sql("DELETE FROM phone_book")
             return self.delete_type(api)
+
+
+#########
+def allowed_file(filename,allowed_extenstions):
+    'check extenstions'
+    last_dot_index=0
+    for index , i in enumerate(filename) :
+        if i =="." : last_dot_index = index
+    extenstion = filename[last_dot_index+1:].lower()
+    return  extenstion in allowed_extenstions
+
+def import_file (db_object):
+    'replace old database file with imported file'
+    with sqlite3.connect("uploads/testing.db") as conn:
+        cur = conn.cursor()
+        try :
+            cur.execute("SELECT groups_.group_, phone_book.name , phone_book.nickname , phone_book.phone_number , phone_book.address , phone_book.work , phone_book.notes , phone_book.email , phone_book.group_  from phone_book  , groups_")
+            shutil.copy("uploads/testing.db", "database/phone_app_db.db")
+            db_object.other_database("database/history.db", "INSERT INTO history (status , date_time) Values ('Import' ,'{}')".format(db_object.get_date_time()) , True )
+            return True
+        except : return False
+
+def export_file (export_as ):
+    db=database("database/history.db")
+    db.sql( "INSERT INTO history (status , date_time) Values ('Export' ,'{}')".format(db.get_date_time()) )
+    if export_as == "SQLite3.db":
+        return "database/phone_app_db.db"
+    elif export_as == "CSV" :
+        with  sqlite3.connect("database/phone_app_db.db") as conn :
+            query = conn.cursor().execute("select * from phone_book")
+            with open ("files/csv_db.csv" ,"wb") as f :
+                f.write("id,name,nickname,phone_number,address,work,email,notes,group\n".encode())
+                for row in query :
+                    f.write( (",".join([str(i) for i in row])+"\n").encode() )
+        return "files/csv_db.csv"
+
+    elif export_as == "SQL" :
+        with sqlite3.connect("database/phone_app_db.db") as conn:
+            with open ("files/db.sql" , "w") as f :
+                for line in conn.iterdump():
+                    f.write('%s\n'%line)
+        return "files/db.sql"
+    elif export_as == "HTML" :
+        data = database("database/phone_app_db.db").query_statment("SELECT * FROM phone_book")
+        html="""
+        <html>
+        <style>
+        *{
+        border:1px solid black;
+        }
+        </style>
+        <table style='width:100%'>
+            <tr>
+                <td>ID</td>
+                <td>Name</td>
+                <td>NickName</td>
+                <td>Phone</td>
+                <td>Address</td>
+                <td>Work</td>
+                <td>Email</td>
+                <td>Notes</td>
+                <td>Group</td>
+            </tr>
+        """
+        for i in data :
+            html+="<tr>"
+            for cell in i :
+                html+="<td>"+str(cell)+"</td>"
+            html+=""
+        html+="</table></html>"
+        with open ("files/export_html.html","w") as f :
+            f.write(html)
+        return "files/export_html.html"
+
+
+def last_export (db_object):
+    try :
+        return db_object.other_database("database/history.db", "SELECT date_time from history where status ='Export' order by id DESC limit 1" , True ) [0][0]
+    except :
+        return ""
+def last_import(db_object):
+    try :
+        return db_object.other_database("database/history.db", "SELECT date_time from history where status ='Import' order by id DESC limit 1" , True ) [0][0]
+
+    except :
+        return ""
